@@ -1,7 +1,8 @@
 import createShortUrl from '../services/urlService.js';
+import ValidationError from '../utils/ValidationError.js';
 
 export async  function shortenUrl(req,res){
-    const { originalUrl } = req.body;
+    const { originalUrl, customSlug } = req.body;
     const userId = req.userId;
 
     if(!originalUrl){
@@ -15,10 +16,13 @@ export async  function shortenUrl(req,res){
     }
 
     try{
-        const shortCode = await createShortUrl(originalUrl, userId);
+        const shortCode = await createShortUrl(originalUrl, userId, customSlug);
         res.status(201).json({ shortCode });
     }
     catch(error){
-        res.status(500).json({ error: error.message });
+        if(error instanceof ValidationError){
+            return res.status(400).json({ error: error.message });
+        }
+        res.status(500).json({ error: 'Internal server error' });
     }
 }
