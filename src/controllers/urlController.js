@@ -2,7 +2,7 @@ import createShortUrl from '../services/urlService.js';
 import ValidationError from '../utils/ValidationError.js';
 
 export async  function shortenUrl(req,res){
-    const { originalUrl, customSlug } = req.body;
+    const { originalUrl, customSlug, expiresIn } = req.body;
     const userId = req.userId;
 
     if(!originalUrl){
@@ -16,7 +16,7 @@ export async  function shortenUrl(req,res){
     }
 
     try{
-        const shortCode = await createShortUrl(originalUrl, userId, customSlug);
+        const shortCode = await createShortUrl(originalUrl, userId, customSlug, expiresIn);
         res.status(201).json({ shortCode });
     }
     catch(error){

@@ -1,11 +1,12 @@
 import getNanoid from '../utils/shortCode.js';
 import pool from '../db/index.js';
 import ValidationError from '../utils/ValidationError.js';
+import parseExpiry from '../utils/parseExpiry.js';
 
 const RESERVED_WORDS = ['api', 'health', 'admin'];
 const SLUG_REGEX = /^[a-zA-Z0-9_-]+$/;
 
-async function createShortUrl(originalUrl, userId, customSlug){
+async function createShortUrl(originalUrl, userId, customSlug, expiresIn){
     try{
         let shortCode;
 
@@ -39,7 +40,9 @@ async function createShortUrl(originalUrl, userId, customSlug){
             }
         }
 
-        const result = await pool.query('INSERT INTO urls (short_code,original_url,user_id) VALUES ($1,$2,$3) RETURNING short_code', [shortCode,originalUrl,userId]);
+        const expiresAt = parseExpiry(expiresIn);
+
+        const result = await pool.query('INSERT INTO urls (short_code,original_url,user_id,expires_at) VALUES ($1,$2,$3,$4) RETURNING short_code', [shortCode,originalUrl,userId,expiresAt]);
         return result.rows[0].short_code;
     }
     catch(error){
