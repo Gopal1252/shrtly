@@ -94,8 +94,9 @@ A URL shortener API built with Node.js, Express, PostgreSQL, and Redis.
 
 | Method | Endpoint | Body | Auth | Description |
 |---|---|---|---|---|
-| POST | `/api/auth/register` | `{ email, password }` | No | Register a new user, returns JWT |
-| POST | `/api/auth/login` | `{ email, password }` | No | Login, returns JWT |
+| POST | `/api/auth/register` | `{ email, password }` | No | Register a new user, sets auth cookie |
+| POST | `/api/auth/login` | `{ email, password }` | No | Login, sets auth cookie |
+| POST | `/api/auth/logout` | — | No | Clears the auth cookie, logs the user out |
 
 ### URLs
 
@@ -223,7 +224,7 @@ src/
 ## Request Flows
 
 **Auth:**
-`POST /api/auth/register` → `authController.register` → `authService.hashPassword` → insert into PostgreSQL → `authService.generateToken` → return JWT
+`POST /api/auth/register` → `authController.register` → `authService.hashPassword` → insert into PostgreSQL → `authService.generateToken` → set httpOnly cookie → return success message
 
 **Shorten:**
 `POST /api/url/` → `auth middleware` → `urlController.shortenUrl` → validate URL → `urlService.createShortUrl` → base62 encode (with transaction) or custom slug → insert into PostgreSQL → return short code

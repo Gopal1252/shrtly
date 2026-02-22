@@ -1,13 +1,11 @@
 import { verifyToken } from '../services/authService.js';
 
 export default function authenticate(req, res, next) {
-  const header = req.headers.authorization;
+  const token = req.cookies.token;
 
-  if (!header || !header.startsWith('Bearer ')) {
+  if (!token) {
     return res.status(401).json({ error: 'No token provided' });
   }
-
-  const token = header.split(' ')[1];
 
   try {
     const decoded = verifyToken(token);

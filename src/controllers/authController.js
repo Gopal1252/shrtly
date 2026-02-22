@@ -1,6 +1,13 @@
 import pool from '../db/index.js';
 import { hashPassword, comparePassword, generateToken } from '../services/authService.js';
 
+const COOKIE_OPTIONS = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production',
+  sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+  maxAge: 60 * 60 * 1000, // 1 hour
+};
+
 export async function register(req, res) {
   const { email, password } = req.body;
 
@@ -21,7 +28,7 @@ export async function register(req, res) {
     );
 
     const token = generateToken(result.rows[0].id);
-    res.status(201).json({ token });
+    res.cookie('token', token, COOKIE_OPTIONS).status(201).json({ message: 'Registered successfully' });
   } catch (err) {
     console.error('Register error:', err.message);
     res.status(500).json({ error: 'Internal server error' });
@@ -48,9 +55,13 @@ export async function login(req, res) {
     }
 
     const token = generateToken(user.id);
-    res.json({ token });
+    res.cookie('token', token, COOKIE_OPTIONS).json({ message: 'Logged in successfully' });
   } catch (err) {
     console.error('Login error:', err.message);
     res.status(500).json({ error: 'Internal server error' });
   }
+}
+
+export function logout(req, res) {
+  res.clearCookie('token', COOKIE_OPTIONS).json({ message: 'Logged out successfully' });
 }
