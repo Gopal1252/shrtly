@@ -1,5 +1,21 @@
+import pool from '../db/index.js';
 import createShortUrl from '../services/urlService.js';
 import ValidationError from '../utils/ValidationError.js';
+
+export async function getUserUrls(req, res) {
+    const userId = req.userId;
+
+    try {
+        const result = await pool.query(
+            'SELECT short_code, original_url, created_at, expires_at FROM urls WHERE user_id = $1 ORDER BY created_at DESC',
+            [userId]
+        );
+        res.json({ urls: result.rows });
+    } catch (error) {
+        console.error('Error fetching user URLs:', error.message);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+}
 
 export async  function shortenUrl(req,res){
     const { originalUrl, customSlug, expiresIn } = req.body;

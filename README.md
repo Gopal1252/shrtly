@@ -46,6 +46,7 @@ A URL shortener API built with Node.js, Express, PostgreSQL, and Redis.
    DATABASE_URL=postgresql://localhost:5432/shrtly
    REDIS_URL=redis://localhost:6379
    JWT_SECRET=your-secret-key-change-this
+   CORS_ORIGIN=http://localhost:3001
    ```
 
 4. Create the database and tables
@@ -100,6 +101,7 @@ A URL shortener API built with Node.js, Express, PostgreSQL, and Redis.
 
 | Method | Endpoint | Body | Auth | Description |
 |---|---|---|---|---|
+| GET | `/api/url/` | — | Yes | List all URLs for the authenticated user |
 | POST | `/api/url/` | `{ originalUrl, customSlug?, expiresIn? }` | Yes | Create a short URL |
 | GET | `/api/url/:code/stats` | — | Yes | Get click analytics (owner only) |
 | GET | `/:code` | — | No | Redirect to original URL |
@@ -140,6 +142,12 @@ curl -X POST http://localhost:3000/api/url/ \
 GET http://localhost:3000/<shortCode> → 302 redirect
 ```
 
+**List your URLs:**
+```bash
+curl http://localhost:3000/api/url/ \
+  -H "Authorization: Bearer <token>"
+```
+
 **View analytics:**
 ```bash
 curl http://localhost:3000/api/url/<shortCode>/stats \
@@ -167,7 +175,7 @@ src/
 │   └── redirect.js                 # /:code
 ├── controllers/
 │   ├── authController.js           # Register, login
-│   ├── urlController.js            # Shorten URL
+│   ├── urlController.js            # Shorten URL, list user URLs
 │   ├── redirectController.js       # Redirect + log click
 │   └── analyticsController.js      # URL stats
 ├── services/
@@ -222,6 +230,9 @@ src/
 
 **Redirect:**
 `GET /:code` → `redirectController` → `redirectService.getOriginalUrl` → check Redis cache → if miss, query PostgreSQL → cache in Redis → check expiration → log click (fire-and-forget) → 302 redirect
+
+**List URLs:**
+`GET /api/url/` → `auth middleware` → `urlController.getUserUrls` → query PostgreSQL for all URLs owned by user → return array
 
 **Analytics:**
 `GET /api/url/:code/stats` → `auth middleware` → `analyticsController.getUrlStats` → verify ownership → query total clicks, recent clicks, top referrers (parallel) → return stats
