@@ -243,7 +243,7 @@ Sliding window algorithm using Redis sorted sets.
 
 | Route | Limit | Window |
 |---|---|---|
-| `/api/url/*` | 10 requests | 15 minutes |
-| `/:code` (redirects) | 100 requests | 15 minutes |
+| `POST /api/url` (shorten) | 10 requests | 15 minutes |
+| `GET /:code` (redirects) | 100 requests | 15 minutes |
 
 Response headers: `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset`

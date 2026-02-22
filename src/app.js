@@ -16,7 +16,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use('/api/auth', authRouter);
-app.use('/api/url', rateLimit({ maxRequests: 10, windowSeconds: 15*60}), urlRouter);
+app.use('/api/url', urlRouter);
 app.use('/', rateLimit({ maxRequests: 100, windowSeconds: 15*60 }), redirectRouter);
 
 app.get('/health',(req,res) => {
