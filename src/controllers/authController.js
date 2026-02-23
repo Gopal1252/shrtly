@@ -23,12 +23,13 @@ export async function register(req, res) {
 
     const hashedPassword = await hashPassword(password);
     const result = await pool.query(
-      'INSERT INTO users (email, password_hash) VALUES ($1, $2) RETURNING id',
+      'INSERT INTO users (email, password_hash) VALUES ($1, $2) RETURNING id, email, created_at',
       [email, hashedPassword]
     );
 
-    const token = generateToken(result.rows[0].id);
-    res.cookie('token', token, COOKIE_OPTIONS).status(201).json({ message: 'Registered successfully' });
+    const user = result.rows[0];
+    const token = generateToken(user.id);
+    res.cookie('token', token, COOKIE_OPTIONS).status(201).json({ user: { id: user.id, email: user.email, createdAt: user.created_at } });
   } catch (err) {
     console.error('Register error:', err.message);
     res.status(500).json({ error: 'Internal server error' });
@@ -43,7 +44,7 @@ export async function login(req, res) {
   }
 
   try {
-    const result = await pool.query('SELECT id, password_hash FROM users WHERE email = $1', [email]);
+    const result = await pool.query('SELECT id, email, created_at, password_hash FROM users WHERE email = $1', [email]);
     if (result.rows.length === 0) {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
@@ -55,7 +56,7 @@ export async function login(req, res) {
     }
 
     const token = generateToken(user.id);
-    res.cookie('token', token, COOKIE_OPTIONS).json({ message: 'Logged in successfully' });
+    res.cookie('token', token, COOKIE_OPTIONS).json({ user: { id: user.id, email: user.email, createdAt: user.created_at } });
   } catch (err) {
     console.error('Login error:', err.message);
     res.status(500).json({ error: 'Internal server error' });
@@ -64,4 +65,21 @@ export async function login(req, res) {
 
 export function logout(req, res) {
   res.clearCookie('token', COOKIE_OPTIONS).json({ message: 'Logged out successfully' });
+}
+
+export async function me(req, res) {
+  try {
+    const result = await pool.query(
+      'SELECT id, email, created_at FROM users WHERE id = $1',
+      [req.userId]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    const user = result.rows[0];
+    res.json({ user: { id: user.id, email: user.email, createdAt: user.created_at } });
+  } catch (err) {
+    console.error('Me error:', err.message);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 }
