@@ -5,6 +5,14 @@ import app from './app.js';
 import logger from './logger.js';
 
 async function start() {
+  const required = ['DATABASE_URL', 'REDIS_URL', 'JWT_SECRET'];
+  const missing = required.filter((key) => !process.env[key]);
+
+  if (missing.length > 0) {
+    logger.fatal('Missing required environment variables: %s', missing.join(', '));
+    process.exit(1);
+  }
+
   try {
     const dbResult = await pool.query('SELECT NOW()');
     logger.info('PostgreSQL connected: %s', dbResult.rows[0].now);
