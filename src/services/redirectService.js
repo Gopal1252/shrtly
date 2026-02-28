@@ -1,5 +1,6 @@
 import pool from "../db/index.js";
 import redis from "../redis/index.js";
+import logger from "../logger.js";
 
 async function getOriginalUrl(shortCode){
     try{
@@ -31,7 +32,7 @@ async function getOriginalUrl(shortCode){
         return {originalUrl,urlId, expiresAt};
 
     }catch(error){
-        console.error("Error getting url: ", error.message);
+        logger.error({ err: error }, "Error getting url");
         throw error;
     }
 }

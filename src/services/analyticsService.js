@@ -1,4 +1,5 @@
 import pool from "../db/index.js";
+import logger from "../logger.js";
 
 async function logClick(urlId, ip, userAgent, referrer){
     try{
@@ -7,7 +8,7 @@ async function logClick(urlId, ip, userAgent, referrer){
             [urlId, ip, userAgent, referrer]
         );
     }catch(error){
-        console.error("Error logging click:", error.message);
+        logger.error({ err: error }, "Error logging click");
     }
 }
 

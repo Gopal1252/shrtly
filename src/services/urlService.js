@@ -2,6 +2,7 @@ import pool from '../db/index.js';
 import ValidationError from '../utils/ValidationError.js';
 import parseExpiry from '../utils/parseExpiry.js';
 import encode from '../utils/base62.js';
+import logger from '../logger.js';
 
 const RESERVED_WORDS = ['api', 'health', 'admin'];
 const SLUG_REGEX = /^[a-zA-Z0-9_-]+$/;
@@ -59,7 +60,7 @@ async function createShortUrl(originalUrl, userId, customSlug, expiresIn){
         }
     }
     catch(error){
-        console.error('Error creating short URL:', error.message);
+        logger.error({ err: error }, 'Error creating short URL');
         throw error;
     }
 }

@@ -28,7 +28,7 @@ export default function rateLimit({ maxRequests, windowSeconds }){
 
             next();
         }catch(error){
-            console.error('Rate limit error:', error.message);
+            req.log.error({ err: error }, 'Rate limit error');
             next();//if Redis fails, we let the request through rather than blocking users. Rate limiting is a safeguard, not critical path
         }
     };

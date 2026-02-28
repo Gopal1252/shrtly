@@ -2,20 +2,21 @@ import config from './config/index.js';
 import pool from './db/index.js';
 import redisClient from './redis/index.js';
 import app from './app.js';
+import logger from './logger.js';
 
 async function start() {
   try {
     const dbResult = await pool.query('SELECT NOW()');
-    console.log('PostgreSQL connected:', dbResult.rows[0].now);
+    logger.info('PostgreSQL connected: %s', dbResult.rows[0].now);
 
     const redisResult = await redisClient.ping();
-    console.log('Redis connected:', redisResult);
+    logger.info('Redis connected: %s', redisResult);
 
     app.listen(config.port, () => {
-      console.log(`Server is running on port ${config.port}`);
+      logger.info('Server is running on port %d', config.port);
     });
   } catch (err) {
-    console.error('Failed to start server:', err.message);
+    logger.fatal({ err }, 'Failed to start server');
     process.exit(1);
   }
 }

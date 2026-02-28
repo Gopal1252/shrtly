@@ -12,7 +12,7 @@ export async function getUserUrls(req, res) {
         );
         res.json({ urls: result.rows });
     } catch (error) {
-        console.error('Error fetching user URLs:', error.message);
+        req.log.error({ err: error }, 'Error fetching user URLs');
         res.status(500).json({ error: 'Internal server error' });
     }
 }

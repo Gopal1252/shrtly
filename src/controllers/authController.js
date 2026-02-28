@@ -31,7 +31,7 @@ export async function register(req, res) {
     const token = generateToken(user.id);
     res.cookie('token', token, COOKIE_OPTIONS).status(201).json({ user: { id: user.id, email: user.email, createdAt: user.created_at } });
   } catch (err) {
-    console.error('Register error:', err.message);
+    req.log.error({ err }, 'Register error');
     res.status(500).json({ error: 'Internal server error' });
   }
 }
@@ -58,7 +58,7 @@ export async function login(req, res) {
     const token = generateToken(user.id);
     res.cookie('token', token, COOKIE_OPTIONS).json({ user: { id: user.id, email: user.email, createdAt: user.created_at } });
   } catch (err) {
-    console.error('Login error:', err.message);
+    req.log.error({ err }, 'Login error');
     res.status(500).json({ error: 'Internal server error' });
   }
 }
@@ -79,7 +79,7 @@ export async function me(req, res) {
     const user = result.rows[0];
     res.json({ user: { id: user.id, email: user.email, createdAt: user.created_at } });
   } catch (err) {
-    console.error('Me error:', err.message);
+    req.log.error({ err }, 'Me error');
     res.status(500).json({ error: 'Internal server error' });
   }
 }
