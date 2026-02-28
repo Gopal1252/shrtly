@@ -23,7 +23,7 @@ app.use(pinoHttp({ logger }));
 
 app.use('/api/auth', authRouter);
 app.use('/api/url', urlRouter);
-app.use('/', rateLimit({ maxRequests: 100, windowSeconds: 15*60 }), redirectRouter);
+app.use('/', rateLimit(config.rateLimit.redirect), redirectRouter);
 
 app.get('/health',(req,res) => {
     res.status(200).json({ message: 'OK' });

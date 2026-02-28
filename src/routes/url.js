@@ -7,7 +7,9 @@ import { getUrlStats } from '../controllers/analyticsController.js';
 const urlRouter = express.Router();
 
 urlRouter.get('/', authenticate, getUserUrls);
-urlRouter.post('/', authenticate, rateLimit({ maxRequests: 10, windowSeconds: 15*60 }), shortenUrl);
+import config from '../config/index.js';
+
+urlRouter.post('/', authenticate, rateLimit(config.rateLimit.urlCreation), shortenUrl);
 urlRouter.get('/:code/stats', authenticate, getUrlStats);
 
 export default urlRouter;
